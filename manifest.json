@@ -1,0 +1,10 @@
+{
+  "id": "code-formatter",
+  "name": "Code Formatter",
+  "version": "0.1.0",
+  "minAppVersion": "0.12.0",
+  "description": "A plugin to format SQL, Java, JavaScript code in Obsidian.",
+  "author": "junki park",
+  "authorUrl": "https://junki-portfolio.vercel.app",
+  "isDesktopOnly": false
+}
