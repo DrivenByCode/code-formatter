@@ -1,42 +1,50 @@
-const path = require('path');
-const TerserPlugin = require('terser-webpack-plugin');
+const path = require("path");
+const TerserPlugin = require("terser-webpack-plugin");
+const webpack = require("webpack");
 
 module.exports = {
-  mode: 'production',
-  entry: './src/main.ts',
+  mode: "production",
+  entry: "./src/main.ts",
   output: {
-    filename: 'main.js',
-    path: path.resolve(__dirname, '.'), // 루트 디렉토리에 직접 출력
-    libraryTarget: 'commonjs',
+    filename: "main.js",
+    path: path.resolve(__dirname, "."), // 루트 디렉토리에 직접 출력
+    libraryTarget: "commonjs"
   },
   module: {
     rules: [
       {
         test: /\.ts$/,
-        use: 'ts-loader',
-        exclude: /node_modules/,
-      },
-    ],
+        use: "ts-loader",
+        exclude: /node_modules/
+      }
+    ]
   },
   resolve: {
-    extensions: ['.ts', '.js'],
+    extensions: [".ts", ".js"]
   },
   optimization: {
     minimize: true,
-    minimizer: [new TerserPlugin({
-      terserOptions: {
-        format: {
-          comments: false,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          format: {
+            comments: false
+          }
         },
-      },
-      extractComments: false,
-    })],
+        extractComments: false
+      })
+    ]
     // splitChunks 옵션 제거
   },
   externals: {
-    obsidian: 'commonjs2 obsidian'
+    obsidian: "commonjs2 obsidian"
   },
   performance: {
-    hints: false,
-  }
+    hints: false
+  },
+  plugins: [
+    new webpack.DefinePlugin({
+      "process.env.NODE_ENV": JSON.stringify("production")
+    })
+  ]
 };

@@ -1,16 +1,34 @@
-import { App, Plugin, PluginSettingTab, Setting, Editor, MarkdownView, Notice } from "obsidian";
+import {
+  App,
+  Plugin,
+  PluginSettingTab,
+  Setting,
+  Editor,
+  MarkdownView,
+  Notice
+} from "obsidian";
 
+// const isProduction = process.env.NODE_ENV === "production";
+
+const isProduction = false;
+
+// 프로덕션 환경에서 콘솔 로그를 비활성화
+if (isProduction) {
+  console.warn = console.error = console.log = function () {};
+}
 
 interface FormatterPluginSettings {
   formatOnSave: boolean;
   formatInterval: number;
   supportedLanguages: string[];
+  sqlDialect: string;
 }
 
 const DEFAULT_SETTINGS: FormatterPluginSettings = {
   formatOnSave: false,
   formatInterval: 30,
-  supportedLanguages: ["java", "sql", "javascript"]
+  supportedLanguages: ["java", "sql", "javascript"],
+  sqlDialect: "sql"
 };
 
 export default class FormatterPlugin extends Plugin {
@@ -110,7 +128,7 @@ export default class FormatterPlugin extends Plugin {
       );
     } else if (language === "sql") {
       return import("./formatters/sql").then((module) =>
-        module.formatSQLCode(code)
+        module.formatSQLCode(code, this.settings.sqlDialect)
       );
     } else if (language === "javascript") {
       return import("./formatters/javascript").then((module) =>
@@ -176,6 +194,36 @@ class FormatterSettingTab extends PluginSettingTab {
           .setValue(this.plugin.settings.supportedLanguages.join(","))
           .onChange(async (value) => {
             this.plugin.settings.supportedLanguages = value.split(",");
+            await this.plugin.saveSettings();
+          })
+      );
+
+    new Setting(containerEl)
+      .setName("SQL Dialect")
+      .setDesc("Select SQL dialect to format")
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption("sql", "Standard SQL")
+          .addOption("bigquery", "GCP BigQuery")
+          .addOption("db2", "IBM DB2")
+          .addOption("db2i", "IBM DB2i (experimental)")
+          .addOption("hive", "Apache Hive")
+          .addOption("mariadb", "MariaDB")
+          .addOption("mysql", "MySQL")
+          .addOption("tidb", "TiDB")
+          .addOption("n1ql", "Couchbase N1QL")
+          .addOption("plsql", "Oracle PL/SQL")
+          .addOption("postgresql", "PostgreSQL")
+          .addOption("redshift", "Amazon Redshift")
+          .addOption("singlestoredb", "SingleStoreDB")
+          .addOption("snowflake", "Snowflake")
+          .addOption("spark", "Spark")
+          .addOption("sqlite", "SQLite")
+          .addOption("transactsql", "SQL Server Transact-SQL")
+          .addOption("trino", "Trino (Presto)")
+          .setValue(this.plugin.settings.sqlDialect)
+          .onChange(async (value) => {
+            this.plugin.settings.sqlDialect = value;
             await this.plugin.saveSettings();
           })
       );
